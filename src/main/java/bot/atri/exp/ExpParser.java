@@ -1,8 +1,8 @@
 package bot.atri.exp;
 
+import bot.atri.exp.exception.SyntaxException;
 import bot.atri.exp.function.*;
 import bot.atri.exp.node.*;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.SyntaxException;
 
 import java.util.*;
 
@@ -16,28 +16,20 @@ public class ExpParser {
         put(")", 0);
         put("+", 1);
         put("-", 1);
-        put("*", 2);
-        put("/", 2);
-        put("^", 4);
+        put("×", 2);
+        put("÷", 2);
         put(",", 5);
-        put("%", 6);
+        put("'", 3);
+        put("/", 4);
     }};
 
     private static final Map<String, Function> functions = new HashMap<String, Function>(){{
         put("+", new Add());
         put("-", new Subtract());
-        put("*", new Multiply());
-        put("/", new Divide());
-        put("^", new Power());
-        put("%", new Mod());
-        put("Math.sin", new Sine());
-        put("Math.cos", new Cosine());
-        put("Math.tan", new Tangent());
-        put("Math.sqrt", new Sqrt());
-        put("Math.sum", new Sum());
-        put("Math.log", new Log());
-        put("Math.pow", new Power());
-        put("Math.abs", new Abs());
+        put("×", new Multiply());
+        put("÷", new Divide());
+        put("'", new FractionInteger());
+        put("/", new FractionProper());
     }};
 
     private static final Map<String, Float> constants = new HashMap<String, Float>(){{
@@ -363,19 +355,19 @@ public class ExpParser {
         if (i < parameterNum) {
             throw new RuntimeException("函数 " + function.getClass().getSimpleName() + " 参数不足");
         }
-        if (!hasVarOrFunction) {
-            // 如果没有变量，直接计算
-            Stack<Object> stack = new Stack<>();
-            functionNode.eval(new HashMap<>(), stack);
-            Object result = stack.pop();
-            if (result instanceof Float) {
-                nodeStack.push(new NumberNode((Float) result));
-            } else if (result instanceof String) {
-                nodeStack.push(new StringNode((String) result));
-            }
-        } else {
+//        if (!hasVarOrFunction) {
+//            // 如果没有变量，直接计算
+//            Stack<Object> stack = new Stack<>();
+//            functionNode.eval(new HashMap<>(), stack);
+//            Object result = stack.pop();
+//            if (result instanceof Float) {
+//                nodeStack.push(new NumberNode((Float) result));
+//            } else if (result instanceof String) {
+//                nodeStack.push(new StringNode((String) result));
+//            }
+//        } else {
             nodeStack.push(functionNode);
-        }
+//        }
     }
 
     public static void addConstant(String name, float value) {

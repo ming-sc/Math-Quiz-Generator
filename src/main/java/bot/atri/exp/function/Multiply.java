@@ -1,5 +1,7 @@
 package bot.atri.exp.function;
 
+import bot.atri.exp.number.Fraction;
+
 import java.util.Map;
 import java.util.Stack;
 
@@ -24,10 +26,19 @@ public class Multiply extends BaseFunction{
     }
 
     public Object multiply(Object a, Object b) {
-        if (a instanceof Float && b instanceof Float) {
-            return (float)a * (float)b;
-        } else {
-            throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName() + " and " + b.getClass().getName());
+        if (a instanceof Float) {
+            if (b instanceof Float) {
+                return (float)a * (float)b;
+            } else if (b instanceof Fraction) {
+                return ((Fraction) b).multiply((float)a);
+            }
+        } else if (a instanceof Fraction) {
+            if (b instanceof Float) {
+                return ((Fraction) a).multiply((float)b);
+            } else if (b instanceof Fraction) {
+                return ((Fraction) a).multiply((Fraction) b);
+            }
         }
+        throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName());
     }
 }

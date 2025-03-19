@@ -1,5 +1,7 @@
 package bot.atri.exp.function;
 
+import bot.atri.exp.number.Fraction;
+
 import java.util.Map;
 import java.util.Stack;
 
@@ -25,7 +27,13 @@ public class Divide extends BaseFunction{
 
     private Object divide(Object a, Object b) {
         if (a instanceof Float && b instanceof Float) {
-            return (float)a / (float)b;
+            return new Fraction(0, ((Float) a).intValue(), ((Float) b).intValue());
+        } else if (a instanceof Fraction && b instanceof Float) {
+            return ((Fraction) a).divide((float)b);
+        } else if (a instanceof Fraction && b instanceof Fraction) {
+            return ((Fraction) a).divide((Fraction) b);
+        } else if (a instanceof Float && b instanceof Fraction) {
+            return new Fraction(((Float) a).intValue(), 0, 1).divide((Fraction) b);
         } else {
             throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName() + " and " + b.getClass().getName());
         }

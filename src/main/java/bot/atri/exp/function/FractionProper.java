@@ -7,11 +7,11 @@ import java.util.Stack;
 
 /**
  * @author : IMG
- * @create : 2025/3/5
+ * @create : 2025/3/17
  */
-public class Subtract extends BaseFunction{
+public class FractionProper extends BaseFunction {
 
-    public Subtract() {
+    public FractionProper() {
         this.parameterNum = 2;
     }
 
@@ -22,18 +22,12 @@ public class Subtract extends BaseFunction{
         }
         Object b = stack.pop();
         Object a = stack.pop();
-        stack.push(subtract(a, b));
+        stack.push(fractionProperBuild(a, b));
     }
 
-    public Object subtract(Object a, Object b) {
+    private Object fractionProperBuild(Object a, Object b) {
         if (a instanceof Float && b instanceof Float) {
-            return (float)a - (float)b;
-        } else if (a instanceof Float && b instanceof Fraction){
-            return new Fraction(((Float) a).intValue(), 0, 1).subtract((Fraction) b);
-        } else if (a instanceof Fraction && b instanceof Float) {
-            return ((Fraction) a).subtract((float)b);
-        } else if (a instanceof Fraction && b instanceof Fraction) {
-            return ((Fraction) a).subtract((Fraction) b);
+            return new Fraction(((Float) a).intValue(), ((Float) b).intValue());
         } else {
             throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName() + " and " + b.getClass().getName());
         }

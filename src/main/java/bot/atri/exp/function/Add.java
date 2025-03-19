@@ -1,5 +1,7 @@
 package bot.atri.exp.function;
 
+import bot.atri.exp.number.Fraction;
+
 import java.util.Map;
 import java.util.Stack;
 
@@ -32,6 +34,12 @@ public class Add extends BaseFunction{
             return a + (String)b;
         } else if (a instanceof String && b instanceof Float) {
             return (String)a + b;
+        } else if (a instanceof Float && b instanceof Fraction){
+            return ((Fraction) b).add((float)a);
+        } else if (a instanceof Fraction && b instanceof Float) {
+            return ((Fraction) a).add((float)b);
+        } else if (a instanceof Fraction && b instanceof Fraction) {
+            return ((Fraction) a).add((Fraction) b);
         } else {
             throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName() + " and " + b.getClass().getName());
         }
