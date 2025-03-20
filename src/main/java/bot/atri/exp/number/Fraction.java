@@ -1,5 +1,10 @@
 package bot.atri.exp.number;
 
+import bot.atri.exp.ExpParser;
+import bot.atri.exp.node.FunctionNode;
+import bot.atri.exp.node.Node;
+import bot.atri.exp.node.NumberNode;
+
 /**
  * @author : IMG
  * @create : 2025/3/18
@@ -17,13 +22,23 @@ public class Fraction implements Comparable<Fraction>{
         this.integer = integer;
         this.numerator = numerator;
         this.denominator = denominator;
+        if (denominator == 0) {
+            this.denominator = 1;
+        }
     }
 
     public void simplify() {
         int gcd = gcd(numerator, denominator);
+        if (gcd == 0) {
+            return;
+        }
         numerator /= gcd;
         denominator /= gcd;
-        integer += numerator / denominator;
+        try {
+            integer += numerator / denominator;
+        } catch (Exception e) {
+            return;
+        }
         numerator %= denominator;
         // 处理负数
         if (integer > 0) {
@@ -118,6 +133,41 @@ public class Fraction implements Comparable<Fraction>{
 
     public void setDenominator(int denominator) {
         this.denominator = denominator;
+    }
+
+    public static Fraction randomFraction(int min, int max) {
+        // 分数计算结果必须在 min 和 max 之间
+        int integer = (int) (Math.random() * (max - min) + min);
+        int numerator = (int) (Math.random() * (max - min + 1) + min);
+        int denominator = (int) (Math.random() * (max - min + 1) + numerator);
+        return new Fraction(integer, numerator, denominator);
+    }
+
+    public static Node toNode(Fraction fraction) {
+        fraction.simplify();
+//        System.out.println(fraction.integer + " " + fraction.numerator + " " + fraction.denominator);
+        if (fraction.getNumerator() == 0) {
+            return new NumberNode(fraction.getInteger());
+        } else if (fraction.getInteger() == 0) {
+            FunctionNode functionNode = new FunctionNode(ExpParser.functions.get("/"));
+            functionNode.addChild(new NumberNode(fraction.getNumerator()));
+            functionNode.addChild(new NumberNode(fraction.getDenominator()));
+            functionNode.setIntValue(fraction.toInt());
+            return functionNode;
+        } else {
+            FunctionNode functionNode = new FunctionNode(ExpParser.functions.get("'"));
+            FunctionNode functionNode1 = new FunctionNode(ExpParser.functions.get("/"));
+            functionNode1.addChild(new NumberNode(fraction.getDenominator()));
+            functionNode1.addChild(new NumberNode(fraction.getNumerator()));
+            functionNode.addChild(functionNode1);
+            functionNode.addChild(new NumberNode(fraction.getInteger()));
+            functionNode.setIntValue(fraction.toInt());
+            return functionNode;
+        }
+    }
+
+    public int toInt() {
+        return (int)Math.ceil((float)numerator / (float) denominator + integer);
     }
 
     @Override

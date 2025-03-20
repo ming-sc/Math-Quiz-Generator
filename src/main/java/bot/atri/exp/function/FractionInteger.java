@@ -9,7 +9,7 @@ import java.util.Stack;
  * @author : IMG
  * @create : 2025/3/17
  */
-public class FractionInteger extends BaseFunction {
+public class FractionInteger extends BaseFunction implements Operator {
 
     public FractionInteger() {
         this.parameterNum = 2;
@@ -32,5 +32,15 @@ public class FractionInteger extends BaseFunction {
         } else {
             throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName() + " and " + b.getClass().getName());
         }
+    }
+
+    @Override
+    public String getSymbol() {
+        return "'";
+    }
+
+    @Override
+    public int getPriority() {
+        return 3;
     }
 }

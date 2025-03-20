@@ -9,6 +9,8 @@ import java.util.Stack;
  */
 public interface Node {
 
+    int getIntValue();
+
     void eval(Map<String, Object> vars, Stack<Object> stack);
 
     void addChild(Node node);

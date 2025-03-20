@@ -11,7 +11,7 @@ import java.util.*;
  * @create : 2025/3/1
  */
 public class ExpParser {
-    private static final Map<String, Integer> operatorPriority = new HashMap<String, Integer>(){{
+    public static final Map<String, Integer> operatorPriority = new HashMap<String, Integer>(){{
         put("(", 0);
         put(")", 0);
         put("+", 1);
@@ -23,7 +23,7 @@ public class ExpParser {
         put("/", 4);
     }};
 
-    private static final Map<String, Function> functions = new HashMap<String, Function>(){{
+    public static final Map<String, Function> functions = new HashMap<String, Function>(){{
         put("+", new Add());
         put("-", new Subtract());
         put("×", new Multiply());
@@ -232,21 +232,6 @@ public class ExpParser {
             if (tokenType.equals(Token.TokenType.NUMBER)) {
                 // 数字
                 nodeStack.push(new NumberNode(Float.parseFloat(tokenValue)));
-            } else if (tokenType.equals(Token.TokenType.STRING)) {
-                // 字符串
-                nodeStack.push(new StringNode(tokenValue));
-            } else if (tokenType.equals(Token.TokenType.VAR)) {
-                // 变量
-                if (Character.isDigit(tokenValue.charAt(0))) {
-                    throw new SyntaxException("变量名不能以数字开头：" + tokenValue);
-                }
-
-                // 处理数学或物理学常数
-                if (constants.containsKey(tokenValue)) {
-                    nodeStack.push(new NumberNode(constants.get(tokenValue)));
-                } else {
-                    nodeStack.push(new VarNode(tokenValue));
-                }
             } else if (tokenType.equals(Token.TokenType.OPERATOR)) {
                 if (!opStack.isEmpty()) {
                     Token topOp = opStack.get(opStack.size() - 1);
@@ -346,10 +331,14 @@ public class ExpParser {
         boolean hasVarOrFunction = false;
         while (!nodeStack.isEmpty() && i < parameterNum) {
             Node node = nodeStack.pop();
-            if (node instanceof VarNode || node instanceof FunctionNode) {
+            if (node instanceof FunctionNode) {
                 hasVarOrFunction = true;
             }
             functionNode.addChild(node);
+            if (node instanceof FunctionNode) {
+                // 如果是函数，需要设置父节点
+                ((FunctionNode) node).setParent(functionNode);
+            }
             i++;
         }
         if (i < parameterNum) {

@@ -9,7 +9,7 @@ import java.util.Stack;
  * @author : IMG
  * @create : 2025/3/5
  */
-public class Multiply extends BaseFunction{
+public class Multiply extends BaseFunction implements Operator {
 
     public Multiply() {
         this.parameterNum = 2;
@@ -40,5 +40,15 @@ public class Multiply extends BaseFunction{
             }
         }
         throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName());
+    }
+
+    @Override
+    public String getSymbol() {
+        return "×";
+    }
+
+    @Override
+    public int getPriority() {
+        return 2;
     }
 }

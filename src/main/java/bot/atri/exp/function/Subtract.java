@@ -9,7 +9,7 @@ import java.util.Stack;
  * @author : IMG
  * @create : 2025/3/5
  */
-public class Subtract extends BaseFunction{
+public class Subtract extends BaseFunction implements Operator{
 
     public Subtract() {
         this.parameterNum = 2;
@@ -37,5 +37,15 @@ public class Subtract extends BaseFunction{
         } else {
             throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName() + " and " + b.getClass().getName());
         }
+    }
+
+    @Override
+    public String getSymbol() {
+        return "-";
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
     }
 }

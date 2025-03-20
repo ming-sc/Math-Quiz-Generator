@@ -9,7 +9,7 @@ import java.util.Stack;
  * @author : IMG
  * @create : 2025/3/5
  */
-public class Divide extends BaseFunction{
+public class Divide extends BaseFunction implements Operator {
 
     public Divide() {
         this.parameterNum = 2;
@@ -27,7 +27,7 @@ public class Divide extends BaseFunction{
 
     private Object divide(Object a, Object b) {
         if (a instanceof Float && b instanceof Float) {
-            return new Fraction(0, ((Float) a).intValue(), ((Float) b).intValue());
+            return new Fraction(0, ((Float) a).intValue(), ((Float) b).intValue()).getValue();
         } else if (a instanceof Fraction && b instanceof Float) {
             return ((Fraction) a).divide((float)b);
         } else if (a instanceof Fraction && b instanceof Fraction) {
@@ -37,5 +37,15 @@ public class Divide extends BaseFunction{
         } else {
             throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName() + " and " + b.getClass().getName());
         }
+    }
+
+    @Override
+    public String getSymbol() {
+        return "÷";
+    }
+
+    @Override
+    public int getPriority() {
+        return 2;
     }
 }

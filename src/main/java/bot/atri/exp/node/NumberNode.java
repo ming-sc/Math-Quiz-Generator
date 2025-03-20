@@ -11,6 +11,11 @@ public class NumberNode implements Node{
     private float value;
 
     @Override
+    public int getIntValue() {
+        return (int) value;
+    }
+
+    @Override
     public void eval(Map<String, Object> vars, Stack<Object> stack) {
         stack.push(value);
     }
@@ -30,6 +35,6 @@ public class NumberNode implements Node{
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return String.valueOf((int) value);
     }
 }

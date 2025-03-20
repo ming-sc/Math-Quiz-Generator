@@ -9,7 +9,7 @@ import java.util.Stack;
  * @author : IMG
  * @create : 2025/3/17
  */
-public class FractionProper extends BaseFunction {
+public class FractionProper extends BaseFunction implements Operator {
 
     public FractionProper() {
         this.parameterNum = 2;
@@ -31,5 +31,15 @@ public class FractionProper extends BaseFunction {
         } else {
             throw new UnsupportedOperationException("Unsupported type: " + a.getClass().getName() + " and " + b.getClass().getName());
         }
+    }
+
+    @Override
+    public String getSymbol() {
+        return "/";
+    }
+
+    @Override
+    public int getPriority() {
+        return 4;
     }
 }

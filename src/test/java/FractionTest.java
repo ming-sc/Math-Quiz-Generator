@@ -24,8 +24,8 @@ public class FractionTest {
 
     @Test
     public void subtractTest() {
-        Fraction fraction1 = new Fraction(1, 2, 3);
-        Fraction fraction2 = new Fraction(1, 1, 4);
+        Fraction fraction1 = new Fraction(7, 1, 2);
+        Fraction fraction2 = new Fraction(8, 1, 2);
         System.out.println(fraction1.subtract(fraction2));
         System.out.println(fraction1.subtract(10));
     }
