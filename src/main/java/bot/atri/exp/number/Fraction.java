@@ -45,6 +45,10 @@ public class Fraction implements Comparable<Fraction>{
             if (numerator < 0) {
                 integer--;
                 numerator += denominator;
+            } else if (denominator < 0) {
+                integer--;
+                denominator = -denominator;
+                numerator = denominator - numerator;
             }
         }
     }
