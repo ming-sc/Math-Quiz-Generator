@@ -15,13 +15,13 @@ public class ExpGenerator {
     private static final ExpressionFileManager fileManager = new ExpressionFileManager();
     private static final String[] operators = { "+", "-", "*", "/" };
 
-    public static String generateAndSaveExp(int operatorNum, int minRange, int maxRange) throws Exception {
+    public static String generateAndSaveExp(int operatorNum, int minRange, int maxRange) {
         String expression = generateExpression(operatorNum, minRange, maxRange);
         double result = evaluateExpression(expression);
         return fileManager.saveExpression(expression + " = " + result, "basic");
     }
 
-    public static String[] generateAndSaveExps(int n, int operatorNum, int minRange, int maxRange) throws Exception {
+    public static String[] generateAndSaveExps(int n, int operatorNum, int minRange, int maxRange) {
         String[] filenames = new String[n];
         for (int i = 0; i < n; i++) {
             filenames[i] = generateAndSaveExp(operatorNum, minRange, maxRange);
