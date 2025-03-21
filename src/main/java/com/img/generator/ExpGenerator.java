@@ -1,134 +1,139 @@
 package com.img.generator;
 
-import com.img.filemanager.ExpressionFileManager;
-import java.util.Random;
-import java.util.Stack;
-import java.util.List;
+import bot.atri.exp.ATRIExp;
+import bot.atri.exp.ExpParser;
+import bot.atri.exp.function.Function;
+import bot.atri.exp.node.FunctionNode;
+import bot.atri.exp.node.Node;
+import bot.atri.exp.node.NumberNode;
+import bot.atri.exp.number.Fraction;
+
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * @author : IMG
  * @create : 2025/3/19
  */
 public class ExpGenerator {
-    private static final Random random = new Random();
-    private static final ExpressionFileManager fileManager = new ExpressionFileManager();
-    private static final String[] operators = { "+", "-", "*", "/" };
+    public static String[] operators = {"+", "-", "×", "÷"};
+    public static Random random = new Random();
+    public static int max;
+    public static int min;
+    public static int num;
 
-    public static String generateAndSaveExp(int operatorNum, int minRange, int maxRange) {
-        String expression = generateExpression(operatorNum, minRange, maxRange);
-        double result = evaluateExpression(expression);
-        return fileManager.saveExpression(expression + " = " + result, "basic");
+    public static ATRIExp generateExp(int operatorNum, int min, int max) {
+        ExpGenerator.max = max;
+        ExpGenerator.min = min;
+        ExpGenerator.num = operatorNum;
+        return new ATRIExp(generateNode(operatorNum, 1, Integer.MAX_VALUE));
     }
 
-    public static String[] generateAndSaveExps(int n, int operatorNum, int minRange, int maxRange) {
-        String[] filenames = new String[n];
-        for (int i = 0; i < n; i++) {
-            filenames[i] = generateAndSaveExp(operatorNum, minRange, maxRange);
-        }
-        return filenames;
-    }
-
-    private static String generateExpression(int operatorNum, int minRange, int maxRange) {
-        StringBuilder expression = new StringBuilder();
-
-        // 生成第一个数
-        expression.append(generateNumber(minRange, maxRange));
-
-        // 生成剩余的运算符和数字
-        for (int i = 0; i < operatorNum; i++) {
-            String operator = operators[random.nextInt(operators.length)];
-            int number = generateNumber(minRange, maxRange);
-
-            // 如果是除法，确保不会除以0，且结果为整数
-            if (operator.equals("/")) {
-                while (number == 0 || expression.toString().isEmpty()) {
-                    number = generateNumber(minRange, maxRange);
-                }
-            }
-
-            expression.append(" ").append(operator).append(" ").append(number);
-        }
-
-        return expression.toString();
-    }
-
-    private static int generateNumber(int minRange, int maxRange) {
-        return random.nextInt(maxRange - minRange + 1) + minRange;
-    }
-
-    private static double evaluateExpression(String expression) {
-        String[] tokens = expression.split(" ");
-        Stack<Double> numbers = new Stack<>();
-        Stack<String> ops = new Stack<>();
-
-        for (String token : tokens) {
-            if (isOperator(token)) {
-                while (!ops.empty() && hasPrecedence(token, ops.peek())) {
-                    numbers.push(applyOp(ops.pop(), numbers.pop(), numbers.pop()));
-                }
-                ops.push(token);
-            } else {
-                numbers.push(Double.parseDouble(token));
+    /**
+     * 生成多个表达式
+     * @param num 表达式数量
+     * @param operatorNum 运算符数量
+     * @param min 最小值
+     * @param max 最大值
+     * @return 表达式数组
+     */
+    public static ATRIExp[] generateExps(int num, int operatorNum, int min, int max) {
+        ATRIExp[] exps = new ATRIExp[num];
+        Set<String> expSet = new HashSet<>();
+        while (expSet.size() < num) {
+            ATRIExp exp = generateExp(operatorNum, min, max);
+            String expStr = exp.toString();
+            if (!expSet.contains(expStr)) {
+                expSet.add(expStr);
+                exps[expSet.size() - 1] = exp;
             }
         }
+        return exps;
+    }
 
-        while (!ops.empty()) {
-            numbers.push(applyOp(ops.pop(), numbers.pop(), numbers.pop()));
+    public static Node generateNode(int num, int min, int max) {
+        if (ExpGenerator.num < 2 && (random.nextBoolean() || ExpGenerator.num == 0)) {
+            return generateNumberNode(min, max);
+        } else {
+            int i = random.nextInt(4);
+            String operator = operators[i];
+            Function function = ExpParser.functions.get(operator);
+            FunctionNode functionNode = new FunctionNode(function);
+            int left = 0;
+            --ExpGenerator.num;
+            Node[] temp = new Node[2];
+            for (int j = 0; j < 2; j++) {
+                Node node;
+                if (j == 1) {
+                    switch (operator) {
+                        case "+":
+                            node = generateNode(ExpGenerator.num, min - left, max - left);
+                            break;
+                        case "×":
+//                            if (left == 0) {
+//                                node = new NumberNode(0);
+//                            } else {
+                                // 向上取整
+                                node = generateNode(ExpGenerator.num, (int)Math.ceil(((double) min) / left) , (int)Math.ceil(((double) max) / left));
+//                            }
+                            break;
+                        case "-":
+                            node = generateNode(ExpGenerator.num, left - max, left - min);
+                            break;
+                        case "÷":
+//                            try {
+                            if (left == 1 && min > 1) {
+                                max = 1;
+                            }
+                                node = generateNode(ExpGenerator.num, Math.max(left, (int) Math.ceil((float) left / max)), max);
+//                            } catch (Exception e){
+//                                node = new NumberNode(1);
+//                            }
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Invalid operator");
+                    }
+                } else {
+                    if (operator.equals("-")) {
+                        node = generateNode(ExpGenerator.num, min + 1, max);
+                    } else {
+                        node = generateNode(ExpGenerator.num, min, max);
+                    }
+                    left = node.getIntValue();
+                }
+                temp[j] = node;
+                if (node instanceof FunctionNode) {
+                    ((FunctionNode) node).setParent(functionNode);
+                }
+            }
+            // 交换两个节点的位置
+            functionNode.addChild(temp[1]);
+            functionNode.addChild(temp[0]);
+            functionNode.calculateIntValue();
+            return functionNode;
         }
-
-        return numbers.pop();
     }
 
-    private static boolean isOperator(String token) {
-        return token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/");
-    }
-
-    private static boolean hasPrecedence(String op1, String op2) {
-        if (op2.equals("(") || op2.equals(")")) {
-            return false;
+    private static Node generateNumberNode(int min, int max) {
+//        System.out.println("source: " + min + " " + max);
+        max = Math.min(max, ExpGenerator.max);
+        max = Math.max(ExpGenerator.min, max);
+        min = Math.max(min, ExpGenerator.min);
+//        System.out.println("clip: " + min + " " + max);
+        if (min >= max) {
+            return new NumberNode(max);
         }
-        return (op1.equals("+") || op1.equals("-")) && (op2.equals("*") || op2.equals("/"));
-    }
-
-    private static double applyOp(String op, double b, double a) {
-        switch (op) {
-            case "+":
-                return a + b;
-            case "-":
-                return a - b;
-            case "*":
-                return a * b;
-            case "/":
-                if (b == 0)
-                    throw new ArithmeticException("除数不能为0");
-                return a / b;
-            default:
-                return 0;
-        }
-    }
-
-    public static List<String> listSavedExpressions() {
-        try {
-            return Arrays.asList(fileManager.listExpressions());
-        } catch (Exception e) {
-            throw new RuntimeException("列出表达式失败: " + e.getMessage());
-        }
-    }
-
-    public static String readExpression(String filename) {
-        try {
-            return fileManager.readExpression(filename);
-        } catch (Exception e) {
-            throw new RuntimeException("读取表达式失败: " + e.getMessage());
-        }
-    }
-
-    public static void deleteExpression(String filename) {
-        try {
-            fileManager.deleteExpression(filename);
-        } catch (Exception e) {
-            throw new RuntimeException("删除表达式失败: " + e.getMessage());
+        if (random.nextBoolean()) {
+            try {
+                NumberNode numberNode = new NumberNode(random.nextInt(max - min + 1) + min);
+                return numberNode;
+            }catch (Exception e){
+                return Fraction.toNode(Fraction.randomFraction(min, max));
+            }
+        } else {
+            return Fraction.toNode(Fraction.randomFraction(min, max));
         }
     }
 }
